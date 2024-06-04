@@ -1,0 +1,17 @@
+services:
+  db:
+    image: postgres:16.3
+    container_name: gophermart-db
+    restart: always
+    shm_size: 128mb
+    environment:
+      POSTGRES_USER: ak
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: gophermart
+    volumes:
+      - pg-data:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+
+volumes:
+  pg-data:
