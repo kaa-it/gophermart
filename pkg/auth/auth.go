@@ -1,4 +1,4 @@
-package gophermart
+package auth
 
 import (
 	"context"

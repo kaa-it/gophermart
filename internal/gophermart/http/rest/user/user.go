@@ -19,7 +19,7 @@ type Handler struct {
 	l Logger
 }
 
-type User struct {
+type CreateRequest struct {
 	login    string
 	password string
 }
@@ -38,7 +38,7 @@ func (h *Handler) Route() *chi.Mux {
 }
 
 func (h *Handler) register(w http.ResponseWriter, r *http.Request) {
-	var req User
+	var req CreateRequest
 
 	dec := json.NewDecoder(r.Body)
 	defer r.Body.Close()

@@ -61,18 +61,18 @@ func (l *Logger) RequestLogger(h http.HandlerFunc) http.HandlerFunc {
 	}
 }
 
-func (l *Logger) Info(args ...interface{}) {
+func (l *Logger) Info(args ...any) {
 	l.log.Info(args...)
 }
 
-func (l *Logger) Infow(msg string, keysAndValues ...interface{}) {
+func (l *Logger) Infow(msg string, keysAndValues ...any) {
 	l.log.Infow(msg, keysAndValues)
 }
 
-func (l *Logger) Fatal(args ...interface{}) {
+func (l *Logger) Fatal(args ...any) {
 	l.log.Fatal(args)
 }
 
-func (l *Logger) Error(args ...interface{}) {
+func (l *Logger) Error(args ...any) {
 	l.log.Error(args)
 }
