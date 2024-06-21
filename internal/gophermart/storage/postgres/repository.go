@@ -1,9 +1,11 @@
-package storage
+package postgres
 
 import (
 	"context"
 	"errors"
 	"fmt"
+	pgxdecimal "github.com/jackc/pgx-shopspring-decimal"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -21,7 +23,17 @@ func NewStorage(config *Config) (*Storage, error) {
 		return nil, errors.New("config is required")
 	}
 
-	dbpool, err := pgxpool.New(context.Background(), config.DSN)
+	pgConfig, err := pgxpool.ParseConfig(config.DSN)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse postgres config: %w", err)
+	}
+
+	pgConfig.AfterConnect = func(ctx context.Context, conn *pgx.Conn) error {
+		pgxdecimal.Register(conn.TypeMap())
+		return nil
+	}
+
+	dbpool, err := pgxpool.NewWithConfig(context.Background(), pgConfig)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create connection pool: %w", err)
 	}

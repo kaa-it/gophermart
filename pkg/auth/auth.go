@@ -63,7 +63,7 @@ func InitKeys() error {
 	return nil
 }
 
-func GetTokenString(userId string) string {
+func CreateAccessToken(userId int64) string {
 	token := jwt.New(jwt.SigningMethodRS256)
 	claims := make(jwt.MapClaims)
 
@@ -83,7 +83,7 @@ func GetHandlerWithJwt(h http.Handler) http.Handler {
 	})
 }
 
-func GetRandomToken() string {
+func CreateRefreshToken() string {
 	b := make([]byte, 46)
 	rand.Read(b)
 	return fmt.Sprintf("%x", b)

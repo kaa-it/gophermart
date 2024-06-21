@@ -1,4 +1,4 @@
-package gophermart
+package rest
 
 import (
 	"encoding/json"

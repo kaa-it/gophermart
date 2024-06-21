@@ -2,30 +2,31 @@ package user
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/go-chi/chi/v5"
-	"github.com/kaa-it/gophermart/internal/gophermart"
-	"github.com/kaa-it/gophermart/internal/gophermart/service/user"
+	"github.com/kaa-it/gophermart/internal/gophermart/auth"
+	"github.com/kaa-it/gophermart/internal/gophermart/http/rest"
 	"net/http"
 )
 
 type Logger interface {
 	RequestLogger(h http.HandlerFunc) http.HandlerFunc
-	Error(args ...interface{})
+	Error(args ...any)
 }
 
 type Handler struct {
-	u user.Service
+	a auth.Service
 	l Logger
 }
 
 type CreateRequest struct {
-	login    string
-	password string
+	Login    string
+	Password string
 }
 
-func NewHandler(u user.Service, l Logger) *Handler {
-	return &Handler{u, l}
+func NewHandler(a auth.Service, l Logger) *Handler {
+	return &Handler{a, l}
 }
 
 func (h *Handler) Route() *chi.Mux {
@@ -45,12 +46,36 @@ func (h *Handler) register(w http.ResponseWriter, r *http.Request) {
 
 	if err := dec.Decode(&req); err != nil {
 		h.l.Error(fmt.Sprintf("failed decoding body: %v", err))
-		gophermart.DisplayAppError(w, http.StatusBadRequest, "failed decoding body")
+		rest.DisplayAppError(w, http.StatusBadRequest, "failed decoding body")
 		return
 	}
 
-	h.u.СreateUser(r.Context(), req.login, req.password)
+	user := auth.User{Login: req.Login, Password: req.Password}
 
+	credentials, err := h.a.CreateUser(r.Context(), user)
+	if err != nil {
+		if errors.Is(err, auth.ErrUserValidation) {
+			rest.DisplayAppError(w, http.StatusBadRequest, err.Error())
+			return
+		}
+
+		if errors.Is(err, auth.ErrInvalidUser) {
+			rest.DisplayAppError(w, http.StatusConflict, err.Error())
+			return
+		}
+
+		rest.DisplayAppError(w, http.StatusInternalServerError, "failed creating user")
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+
+	enc := json.NewEncoder(w)
+	if err := enc.Encode(credentials); err != nil {
+		h.l.Error(fmt.Sprintf("failed encoding credentials: %v", err))
+		return
+	}
 }
 
 func (h *Handler) login(w http.ResponseWriter, r *http.Request) {

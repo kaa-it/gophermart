@@ -4,8 +4,10 @@ import (
 	"context"
 	"errors"
 	"github.com/go-chi/chi/v5"
+	"github.com/kaa-it/gophermart/internal/gophermart/auth"
 	"github.com/kaa-it/gophermart/internal/gophermart/http/rest/user"
-	"github.com/kaa-it/gophermart/internal/gophermart/storage"
+	"github.com/kaa-it/gophermart/internal/gophermart/storage/postgres"
+	authUtils "github.com/kaa-it/gophermart/pkg/auth"
 	"github.com/kaa-it/gophermart/pkg/logger"
 	"net/http"
 	"os"
@@ -32,10 +34,14 @@ func (s *Server) Run() {
 
 	log.Info("starting server")
 
+	if err := authUtils.InitKeys(); err != nil {
+		log.Fatal("failed to initialize keys: %s", err)
+	}
+
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt, syscall.SIGTERM, syscall.SIGQUIT)
 
-	newStorage, err := storage.NewStorage(&storage.Config{
+	newStorage, err := postgres.NewStorage(&postgres.Config{
 		DSN: s.config.DatabaseUri,
 	})
 	if err != nil {
@@ -47,7 +53,9 @@ func (s *Server) Run() {
 	}
 	defer newStorage.Close()
 
-	userHandler := user.NewHandler(newStorage, log)
+	userService := auth.NewService(newStorage)
+
+	userHandler := user.NewHandler(userService, log)
 
 	r := chi.NewRouter()
 
