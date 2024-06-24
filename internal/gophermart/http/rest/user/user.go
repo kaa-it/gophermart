@@ -4,21 +4,10 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/go-chi/chi/v5"
 	"github.com/kaa-it/gophermart/internal/gophermart/auth"
 	"github.com/kaa-it/gophermart/internal/gophermart/http/rest"
 	"net/http"
 )
-
-type Logger interface {
-	RequestLogger(h http.HandlerFunc) http.HandlerFunc
-	Error(args ...any)
-}
-
-type Handler struct {
-	a auth.Service
-	l Logger
-}
 
 type CreateRequest struct {
 	Login    string
@@ -32,20 +21,6 @@ type LoginRequest struct {
 
 type TokenRequest struct {
 	RefreshToken string
-}
-
-func NewHandler(a auth.Service, l Logger) *Handler {
-	return &Handler{a, l}
-}
-
-func (h *Handler) Route() *chi.Mux {
-	mux := chi.NewMux()
-
-	mux.Post("/register", h.l.RequestLogger(h.register))
-	mux.Post("/login", h.l.RequestLogger(h.login))
-	mux.Post("/token", h.l.RequestLogger(h.token))
-
-	return mux
 }
 
 func (h *Handler) register(w http.ResponseWriter, r *http.Request) {
@@ -80,6 +55,7 @@ func (h *Handler) register(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Authorization", credentials.AccessToken)
 	w.WriteHeader(http.StatusOK)
 
 	enc := json.NewEncoder(w)
@@ -120,6 +96,7 @@ func (h *Handler) login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Authorization", credentials.AccessToken)
 	w.WriteHeader(http.StatusOK)
 
 	enc := json.NewEncoder(w)
@@ -156,6 +133,7 @@ func (h *Handler) token(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Authorization", credentials.AccessToken)
 	w.WriteHeader(http.StatusOK)
 
 	enc := json.NewEncoder(w)

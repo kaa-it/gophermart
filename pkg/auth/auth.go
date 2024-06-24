@@ -74,7 +74,7 @@ func CreateAccessToken(userId int64) string {
 
 	tokenString, _ := token.SignedString(jwtPrivateKey)
 
-	return tokenString
+	return "Bearer " + tokenString
 }
 
 func GetHandlerWithJwt(h http.Handler) http.Handler {
