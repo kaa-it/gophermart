@@ -63,11 +63,11 @@ func InitKeys() error {
 	return nil
 }
 
-func CreateAccessToken(userId int64) string {
+func CreateAccessToken(userID int64) string {
 	token := jwt.New(jwt.SigningMethodRS256)
 	claims := make(jwt.MapClaims)
 
-	claims["id"] = userId
+	claims["id"] = userID
 	claims["exp"] = time.Now().Add(_accessTokenLifetime).Unix()
 
 	token.Claims = claims

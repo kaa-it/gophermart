@@ -22,9 +22,9 @@ type Service interface {
 type Repository interface {
 	CreateUser(ctx context.Context, user User, refreshToken string) (int64, error)
 	GetUserByLogin(ctx context.Context, login string) (*User, error)
-	CreateSession(ctx context.Context, userId int64, refreshToken string) error
+	CreateSession(ctx context.Context, userID int64, refreshToken string) error
 	RemoveExpiredSessions(ctx context.Context) error
-	GetUserIdBySessionToken(ctx context.Context, refreshToken string) (int64, error)
+	GetUserIDBySessionToken(ctx context.Context, refreshToken string) (int64, error)
 	UpdateSession(ctx context.Context, refreshToken, newRefreshToken string) error
 }
 
@@ -50,12 +50,12 @@ func (s *service) CreateUser(ctx context.Context, user User) (*Credentials, erro
 
 	refreshToken := auth.CreateRefreshToken()
 
-	userId, err := s.r.CreateUser(ctx, user, refreshToken)
+	userID, err := s.r.CreateUser(ctx, user, refreshToken)
 	if err != nil {
 		return nil, err
 	}
 
-	accessToken := auth.CreateAccessToken(userId)
+	accessToken := auth.CreateAccessToken(userID)
 
 	return &Credentials{accessToken, refreshToken}, nil
 }
@@ -81,14 +81,14 @@ func (s *service) Login(ctx context.Context, user User) (*Credentials, error) {
 
 	fmt.Println("test2")
 
-	err = s.r.CreateSession(ctx, dbUser.Id, refreshToken)
+	err = s.r.CreateSession(ctx, dbUser.ID, refreshToken)
 	if err != nil {
 		return nil, err
 	}
 
 	fmt.Println("test3")
 
-	accessToken := auth.CreateAccessToken(dbUser.Id)
+	accessToken := auth.CreateAccessToken(dbUser.ID)
 
 	return &Credentials{accessToken, refreshToken}, nil
 }
@@ -100,7 +100,7 @@ func (s *service) Token(ctx context.Context, refreshToken string) (*Credentials,
 
 	fmt.Println("test1")
 
-	userId, err := s.r.GetUserIdBySessionToken(ctx, refreshToken)
+	userID, err := s.r.GetUserIDBySessionToken(ctx, refreshToken)
 	if err != nil {
 		return nil, err
 	}
@@ -114,7 +114,7 @@ func (s *service) Token(ctx context.Context, refreshToken string) (*Credentials,
 		return nil, err
 	}
 
-	accessToken := auth.CreateAccessToken(userId)
+	accessToken := auth.CreateAccessToken(userID)
 
 	return &Credentials{accessToken, newRefreshToken}, nil
 }

@@ -31,7 +31,7 @@ func (s *Storage) CreateUser(ctx context.Context, user auth.User, refreshToken s
 
 	defer transaction.Rollback(ctx)
 
-	var userId int64
+	var userID int64
 
 	err = transaction.QueryRow(
 		ctx,
@@ -40,7 +40,7 @@ func (s *Storage) CreateUser(ctx context.Context, user auth.User, refreshToken s
 			"login":    user.Login,
 			"password": user.Password,
 		},
-	).Scan(&userId)
+	).Scan(&userID)
 
 	if err != nil {
 		var pgErr *pgconn.PgError
@@ -55,7 +55,7 @@ func (s *Storage) CreateUser(ctx context.Context, user auth.User, refreshToken s
 		ctx,
 		"INSERT INTO sessions (user_id, refresh_token, expired) VALUES (@user_id, @refresh_token, @expired)",
 		pgx.NamedArgs{
-			"user_id":       userId,
+			"user_id":       userID,
 			"refresh_token": refreshToken,
 			"expired":       time.Now().Add(_refreshTokenLifetime),
 		},
@@ -69,7 +69,7 @@ func (s *Storage) CreateUser(ctx context.Context, user auth.User, refreshToken s
 		return 0, err
 	}
 
-	return userId, nil
+	return userID, nil
 }
 
 func (s *Storage) GetUserByLogin(ctx context.Context, login string) (*auth.User, error) {
@@ -92,7 +92,7 @@ func (s *Storage) GetUserByLogin(ctx context.Context, login string) (*auth.User,
 	}
 
 	u := auth.User{
-		Id:        res.id,
+		ID:        res.id,
 		Login:     res.login,
 		Password:  res.password,
 		Currency:  res.currency,
@@ -102,12 +102,12 @@ func (s *Storage) GetUserByLogin(ctx context.Context, login string) (*auth.User,
 	return &u, nil
 }
 
-func (s *Storage) CreateSession(ctx context.Context, userId int64, refreshToken string) error {
+func (s *Storage) CreateSession(ctx context.Context, userID int64, refreshToken string) error {
 	_, err := s.dbpool.Exec(
 		ctx,
 		"INSERT INTO sessions (user_id, refresh_token, expired) VALUES (@user_id, @refresh_token, @expired)",
 		pgx.NamedArgs{
-			"user_id":       userId,
+			"user_id":       userID,
 			"refresh_token": refreshToken,
 			"expired":       time.Now().Add(_refreshTokenLifetime),
 		},
@@ -125,8 +125,8 @@ func (s *Storage) RemoveExpiredSessions(ctx context.Context) error {
 	return err
 }
 
-func (s *Storage) GetUserIdBySessionToken(ctx context.Context, refreshToken string) (int64, error) {
-	var userId int64
+func (s *Storage) GetUserIDBySessionToken(ctx context.Context, refreshToken string) (int64, error) {
+	var userID int64
 
 	err := s.dbpool.QueryRow(
 		ctx,
@@ -134,7 +134,7 @@ func (s *Storage) GetUserIdBySessionToken(ctx context.Context, refreshToken stri
 		pgx.NamedArgs{
 			"refresh_token": refreshToken,
 		},
-	).Scan(&userId)
+	).Scan(&userID)
 
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
@@ -144,7 +144,7 @@ func (s *Storage) GetUserIdBySessionToken(ctx context.Context, refreshToken stri
 		return 0, err
 	}
 
-	return userId, nil
+	return userID, nil
 }
 
 func (s *Storage) UpdateSession(ctx context.Context, refreshToken, newRefreshToken string) error {
