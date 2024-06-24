@@ -3,6 +3,7 @@ package user
 import (
 	"github.com/go-chi/chi/v5"
 	"github.com/kaa-it/gophermart/internal/gophermart/auth"
+	authUtils "github.com/kaa-it/gophermart/pkg/auth"
 	"net/http"
 )
 
@@ -26,6 +27,8 @@ func (h *Handler) Route() *chi.Mux {
 	mux.Post("/register", h.l.RequestLogger(h.register))
 	mux.Post("/login", h.l.RequestLogger(h.login))
 	mux.Post("/token", h.l.RequestLogger(h.token))
+
+	mux.Post("/orders", h.l.RequestLogger(authUtils.GetHandlerWithJwt(h.uploadOrder)))
 
 	return mux
 }

@@ -11,8 +11,7 @@ import (
 
 	jwtmiddleware "github.com/auth0/go-jwt-middleware/v2"
 	"github.com/auth0/go-jwt-middleware/v2/validator"
-
-	"github.com/golang-jwt/jwt"
+	jwt "github.com/golang-jwt/jwt/v5"
 )
 
 const (
@@ -22,6 +21,19 @@ const (
 var jwtPrivateKey *rsa.PrivateKey
 
 var jwtMiddleware *jwtmiddleware.JWTMiddleware
+
+type CustomClaims struct {
+	UserID int64 `json:"userId"`
+}
+
+func (c *CustomClaims) Validate(_ context.Context) error {
+	return nil
+}
+
+type GophermartClaims struct {
+	CustomClaims
+	jwt.RegisteredClaims
+}
 
 func InitKeys() error {
 	jwtPublicBytes, err := os.ReadFile("./public.pem")
@@ -48,11 +60,16 @@ func InitKeys() error {
 		return jwtPublicKey, nil
 	}
 
+	customClaims := func() validator.CustomClaims {
+		return &CustomClaims{}
+	}
+
 	jwtValidator, err := validator.New(
 		keyFunc,
 		validator.RS256,
 		"https://akruglov.ru",
 		[]string{"kruglov"},
+		validator.WithCustomClaims(customClaims),
 	)
 	if err != nil {
 		return err
@@ -64,20 +81,34 @@ func InitKeys() error {
 }
 
 func CreateAccessToken(userID int64) string {
-	token := jwt.New(jwt.SigningMethodRS256)
-	claims := make(jwt.MapClaims)
+	claims := GophermartClaims{
+		CustomClaims{
+			UserID: userID,
+		},
+		jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(_accessTokenLifetime)),
+			Issuer:    "https://akruglov.ru",
+			Audience:  []string{"kruglov"},
+		},
+	}
 
-	claims["id"] = userID
-	claims["exp"] = time.Now().Add(_accessTokenLifetime).Unix()
+	token := jwt.NewWithClaims(jwt.SigningMethodRS256, claims)
 
-	token.Claims = claims
+	//claims := make(jwt.MapClaims)
+	//
+	//claims["id"] = userID
+	//claims["exp"] = time.Now().Add(_accessTokenLifetime).Unix()
+	//claims["iss"] = "https://akruglov.ru"
+	//claims["aud"] = []string{"kruglov"}
+	//
+	//token.Claims = claims
 
 	tokenString, _ := token.SignedString(jwtPrivateKey)
 
 	return "Bearer " + tokenString
 }
 
-func GetHandlerWithJwt(h http.Handler) http.Handler {
+func GetHandlerWithJwt(h http.HandlerFunc) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		jwtMiddleware.CheckJWT(h).ServeHTTP(w, r)
 	})
@@ -89,6 +120,14 @@ func CreateRefreshToken() string {
 	return fmt.Sprintf("%x", b)
 }
 
-func GetUserIDByToken(r *http.Request) string {
-	return ""
+func GetUserIDByToken(r *http.Request) *int64 {
+	token := r.Context().Value(jwtmiddleware.ContextKey{})
+	if token == nil {
+		return nil
+	}
+
+	claims := token.(*validator.ValidatedClaims)
+	customClaims := claims.CustomClaims.(*CustomClaims)
+
+	return &customClaims.UserID
 }

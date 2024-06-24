@@ -5,7 +5,7 @@ go 1.22.2
 require (
 	github.com/auth0/go-jwt-middleware/v2 v2.2.1
 	github.com/go-chi/chi/v5 v5.0.12
-	github.com/golang-jwt/jwt v3.2.2+incompatible
+	github.com/golang-jwt/jwt/v5 v5.2.1
 	github.com/jackc/pgerrcode v0.0.0-20240316143900-6e2875d9b438
 	github.com/jackc/pgx-shopspring-decimal v0.0.0-20220624020537-1d36b5a1853e
 	github.com/jackc/pgx/v5 v5.6.0
