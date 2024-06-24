@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/rand"
 	"crypto/rsa"
+	"errors"
 	"fmt"
 	"net/http"
 	"os"
@@ -33,6 +34,22 @@ func (c *CustomClaims) Validate(_ context.Context) error {
 type GophermartClaims struct {
 	CustomClaims
 	jwt.RegisteredClaims
+}
+
+func jwtErrorHandler(w http.ResponseWriter, r *http.Request, err error) {
+	w.Header().Set("Content-Type", "application/json")
+
+	switch {
+	case errors.Is(err, jwtmiddleware.ErrJWTMissing):
+		w.WriteHeader(http.StatusUnauthorized)
+		_, _ = w.Write([]byte(`{"message":"JWT is missing."}`))
+	case errors.Is(err, jwtmiddleware.ErrJWTInvalid):
+		w.WriteHeader(http.StatusUnauthorized)
+		_, _ = w.Write([]byte(`{"message":"JWT is invalid."}`))
+	default:
+		w.WriteHeader(http.StatusInternalServerError)
+		_, _ = w.Write([]byte(`{"message":"Something went wrong while checking the JWT."}`))
+	}
 }
 
 func InitKeys() error {
@@ -75,7 +92,10 @@ func InitKeys() error {
 		return err
 	}
 
-	jwtMiddleware = jwtmiddleware.New(jwtValidator.ValidateToken)
+	jwtMiddleware = jwtmiddleware.New(
+		jwtValidator.ValidateToken,
+		jwtmiddleware.WithErrorHandler(jwtErrorHandler),
+	)
 
 	return nil
 }
