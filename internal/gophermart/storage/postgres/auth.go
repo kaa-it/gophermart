@@ -71,3 +71,92 @@ func (s *Storage) CreateUser(ctx context.Context, user auth.User, refreshToken s
 
 	return userId, nil
 }
+
+func (s *Storage) GetUserByLogin(ctx context.Context, login string) (*auth.User, error) {
+	var res user
+
+	err := s.dbpool.QueryRow(
+		ctx,
+		"SELECT * FROM users WHERE login = @login",
+		pgx.NamedArgs{
+			"login": login,
+		},
+	).Scan(&res.id, &res.login, &res.password, &res.currency, &res.withdrawn)
+
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, auth.ErrUserNotFound
+		}
+
+		return nil, err
+	}
+
+	u := auth.User{
+		Id:        res.id,
+		Login:     res.login,
+		Password:  res.password,
+		Currency:  res.currency,
+		Withdrawn: res.withdrawn,
+	}
+
+	return &u, nil
+}
+
+func (s *Storage) CreateSession(ctx context.Context, userId int64, refreshToken string) error {
+	_, err := s.dbpool.Exec(
+		ctx,
+		"INSERT INTO sessions (user_id, refresh_token, expired) VALUES (@user_id, @refresh_token, @expired)",
+		pgx.NamedArgs{
+			"user_id":       userId,
+			"refresh_token": refreshToken,
+			"expired":       time.Now().Add(_refreshTokenLifetime),
+		},
+	)
+
+	return err
+}
+
+func (s *Storage) RemoveExpiredSessions(ctx context.Context) error {
+	_, err := s.dbpool.Exec(
+		ctx,
+		"DELETE FROM sessions WHERE expired < NOW()",
+	)
+
+	return err
+}
+
+func (s *Storage) GetUserIdBySessionToken(ctx context.Context, refreshToken string) (int64, error) {
+	var userId int64
+
+	err := s.dbpool.QueryRow(
+		ctx,
+		"SELECT user_id FROM sessions WHERE refresh_token = @refresh_token",
+		pgx.NamedArgs{
+			"refresh_token": refreshToken,
+		},
+	).Scan(&userId)
+
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return 0, auth.ErrUnauthorized
+		}
+
+		return 0, err
+	}
+
+	return userId, nil
+}
+
+func (s *Storage) UpdateSession(ctx context.Context, refreshToken, newRefreshToken string) error {
+	_, err := s.dbpool.Exec(
+		ctx,
+		"UPDATE sessions SET refresh_token = @new_refresh_token, expired = @expired WHERE refresh_token = @refresh_token",
+		pgx.NamedArgs{
+			"refresh_token":     refreshToken,
+			"new_refresh_token": newRefreshToken,
+			"expired":           time.Now().Add(_refreshTokenLifetime),
+		},
+	)
+
+	return err
+}

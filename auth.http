@@ -5,3 +5,22 @@ Content-Type: application/json
   "login": "akruglov",
   "password": "8smile8"
 }
+
+###
+
+POST http://localhost:8080/api/user/login
+Content-Type: application/json
+
+{
+  "login": "akruglov",
+  "password": "8smile8"
+}
+
+###
+
+POST http://localhost:8080/api/user/token
+Content-Type: application/json
+
+{
+  "refreshToken": "e65399a454ddd345781f2747cabcbea619dfe4e14f35aaf54eedf8f7a516b39791797ace6b4e6007a26c23cf5d0c"
+}
