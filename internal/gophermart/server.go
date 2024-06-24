@@ -42,7 +42,7 @@ func (s *Server) Run() {
 	signal.Notify(c, os.Interrupt, syscall.SIGTERM, syscall.SIGQUIT)
 
 	newStorage, err := postgres.NewStorage(&postgres.Config{
-		DSN: s.config.DatabaseUri,
+		DSN: s.config.DatabaseURI,
 	})
 	if err != nil {
 		panic(err)
