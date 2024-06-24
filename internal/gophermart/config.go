@@ -8,7 +8,7 @@ import (
 const (
 	_serverAddress  = ":8080"
 	_accrualAddress = ":8081"
-	_databaseUri    = ""
+	_databaseURI    = ""
 	_logLevel       = "info"
 )
 
@@ -22,7 +22,7 @@ type Config struct {
 func NewConfig() *Config {
 	serverAddress := flag.String("a", _serverAddress, "Server address")
 	accrualAddress := flag.String("r", _accrualAddress, "Accrual address")
-	databaseUri := flag.String("d", _databaseUri, "Database URI")
+	databaseUri := flag.String("d", _databaseURI, "Database URI")
 	logLevel := flag.String("l", _logLevel, "Log level")
 
 	flag.Parse()
