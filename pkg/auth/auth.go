@@ -89,6 +89,6 @@ func CreateRefreshToken() string {
 	return fmt.Sprintf("%x", b)
 }
 
-func GetUserIdByToken(r *http.Request) string {
+func GetUserIDByToken(r *http.Request) string {
 	return ""
 }
