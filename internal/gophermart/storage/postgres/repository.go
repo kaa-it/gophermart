@@ -76,5 +76,36 @@ func (s *Storage) Initialize(ctx context.Context) error {
 		);`,
 	)
 
+	if err != nil {
+		return err
+	}
+
+	_, err = s.dbpool.Exec(
+		ctx,
+		`CREATE TABLE IF NOT EXISTS orders
+        (
+		    number TEXT PRIMARY KEY,
+		    user_id       INT       NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+		    status TEXT NOT NULL,
+		    accrual DECIMAL,
+		    uploaded_at TIMESTAMP NOT NULL
+	    );`,
+	)
+
+	if err != nil {
+		return err
+	}
+
+	_, err = s.dbpool.Exec(
+		ctx,
+		`CREATE TABLE IF NOT EXISTS withdrawals
+		(
+			number TEXT PRIMARY KEY,
+			user_id       INT       NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+			sum DECIMAL NOT NULL,
+			processed_at TIMESTAMP NOT NULL
+		);`,
+	)
+
 	return err
 }

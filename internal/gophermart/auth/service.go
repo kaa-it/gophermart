@@ -8,10 +8,12 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-var ErrUserValidation = errors.New("validation error")
-var ErrInvalidUser = errors.New("invalid user")
-var ErrUserNotFound = errors.New("user not found")
-var ErrUnauthorized = errors.New("unauthorized")
+var (
+	ErrUserValidation = errors.New("validation error")
+	ErrInvalidUser    = errors.New("invalid user")
+	ErrUserNotFound   = errors.New("user not found")
+	ErrUnauthorized   = errors.New("unauthorized")
+)
 
 type Service interface {
 	CreateUser(ctx context.Context, user User) (*Credentials, error)

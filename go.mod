@@ -3,6 +3,7 @@ module github.com/kaa-it/gophermart
 go 1.22.2
 
 require (
+	github.com/EClaesson/go-luhn v0.0.0-20210207103312-b1c12d658b70
 	github.com/auth0/go-jwt-middleware/v2 v2.2.1
 	github.com/go-chi/chi/v5 v5.0.12
 	github.com/golang-jwt/jwt/v5 v5.2.1

@@ -91,7 +91,7 @@ func (s *Storage) GetUserByLogin(ctx context.Context, login string) (*auth.User,
 		return nil, err
 	}
 
-	u := auth.User{
+	u := &auth.User{
 		ID:        res.id,
 		Login:     res.login,
 		Password:  res.password,
@@ -99,7 +99,7 @@ func (s *Storage) GetUserByLogin(ctx context.Context, login string) (*auth.User,
 		Withdrawn: res.withdrawn,
 	}
 
-	return &u, nil
+	return u, nil
 }
 
 func (s *Storage) CreateSession(ctx context.Context, userID int64, refreshToken string) error {

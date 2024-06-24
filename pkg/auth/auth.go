@@ -114,15 +114,6 @@ func CreateAccessToken(userID int64) string {
 
 	token := jwt.NewWithClaims(jwt.SigningMethodRS256, claims)
 
-	//claims := make(jwt.MapClaims)
-	//
-	//claims["id"] = userID
-	//claims["exp"] = time.Now().Add(_accessTokenLifetime).Unix()
-	//claims["iss"] = "https://akruglov.ru"
-	//claims["aud"] = []string{"kruglov"}
-	//
-	//token.Claims = claims
-
 	tokenString, _ := token.SignedString(jwtPrivateKey)
 
 	return "Bearer " + tokenString

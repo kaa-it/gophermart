@@ -1,0 +1,66 @@
+package postgres
+
+import (
+	"context"
+	"errors"
+	"github.com/jackc/pgx/v5"
+	"github.com/kaa-it/gophermart/internal/gophermart/orders"
+	"github.com/shopspring/decimal"
+	"time"
+)
+
+type order struct {
+	number     string
+	userID     string
+	status     string
+	accrual    decimal.NullDecimal
+	uploadedAt time.Time
+}
+
+func (s *Storage) UploadOrder(ctx context.Context, orderNumber string, userID int64) error {
+	_, err := s.dbpool.Exec(
+		ctx,
+		"INSERT INTO orders (number, user_id, status, uploaded_at) VALUES (@number, @user_id, @status, @uploaded_at)",
+		pgx.NamedArgs{
+			"number":  orderNumber,
+			"user_id": userID,
+			"status":  orders.OrderStatusNew,
+			"expired": time.Now(),
+		},
+	)
+
+	return err
+}
+
+func (s *Storage) GetOrderByNumber(ctx context.Context, orderNumber string) (*orders.Order, error) {
+	var res order
+
+	err := s.dbpool.QueryRow(
+		ctx,
+		"SELECT * FROM orders WHERE number = @number",
+		pgx.NamedArgs{
+			"number": orderNumber,
+		},
+	).Scan(&res.number, &res.userID, &res.status, &res.accrual, &res.uploadedAt)
+
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, orders.ErrOrderNotFound
+		}
+
+		return nil, err
+	}
+
+	o := &orders.Order{
+		Number:     res.number,
+		UserID:     res.userID,
+		Status:     res.status,
+		UploadedAt: res.uploadedAt,
+	}
+
+	if res.accrual.Valid {
+		o.Accrual = &res.accrual.Decimal
+	}
+
+	return o, nil
+}
