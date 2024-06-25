@@ -4,11 +4,12 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"net/http"
+
 	"github.com/kaa-it/gophermart/internal/gophermart/http/rest"
 	"github.com/kaa-it/gophermart/internal/gophermart/withdrawals"
 	"github.com/kaa-it/gophermart/pkg/auth"
 	"github.com/shopspring/decimal"
-	"net/http"
 )
 
 type WithdrawRequest struct {

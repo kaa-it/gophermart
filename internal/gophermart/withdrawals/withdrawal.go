@@ -1,8 +1,9 @@
 package withdrawals
 
 import (
-	"github.com/shopspring/decimal"
 	"time"
+
+	"github.com/shopspring/decimal"
 )
 
 type Withdrawal struct {

@@ -4,11 +4,12 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
+	"net/http"
+
 	"github.com/kaa-it/gophermart/internal/gophermart/http/rest"
 	"github.com/kaa-it/gophermart/internal/gophermart/orders"
 	"github.com/kaa-it/gophermart/pkg/auth"
-	"io"
-	"net/http"
 )
 
 func (h *Handler) uploadOrder(w http.ResponseWriter, r *http.Request) {

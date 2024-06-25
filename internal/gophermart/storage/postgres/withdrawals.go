@@ -2,10 +2,11 @@ package postgres
 
 import (
 	"context"
+	"time"
+
 	"github.com/jackc/pgx/v5"
 	"github.com/kaa-it/gophermart/internal/gophermart/withdrawals"
 	"github.com/shopspring/decimal"
-	"time"
 )
 
 type withdrawal struct {

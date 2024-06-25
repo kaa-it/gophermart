@@ -8,9 +8,5 @@ import (
 func main() {
 	_ = godotenv.Load()
 
-	config := gophermart.NewConfig()
-
-	server := gophermart.New(config)
-
-	server.Run()
+	gophermart.RunApplication()
 }

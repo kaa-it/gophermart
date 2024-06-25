@@ -1,12 +1,13 @@
 package user
 
 import (
+	"net/http"
+
 	"github.com/go-chi/chi/v5"
 	"github.com/kaa-it/gophermart/internal/gophermart/auth"
 	"github.com/kaa-it/gophermart/internal/gophermart/orders"
 	"github.com/kaa-it/gophermart/internal/gophermart/withdrawals"
 	authUtils "github.com/kaa-it/gophermart/pkg/auth"
-	"net/http"
 )
 
 type Logger interface {

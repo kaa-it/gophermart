@@ -3,12 +3,13 @@ package postgres
 import (
 	"context"
 	"errors"
+	"time"
+
 	"github.com/jackc/pgerrcode"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/kaa-it/gophermart/internal/gophermart/orders"
 	"github.com/shopspring/decimal"
-	"time"
 )
 
 type order struct {
@@ -88,9 +89,98 @@ func (s *Storage) GetOrderByNumber(ctx context.Context, orderNumber string) (*or
 func (s *Storage) GetOrders(ctx context.Context, userID int64) ([]orders.Order, error) {
 	rows, err := s.dbpool.Query(
 		ctx,
-		"SELECT * FROM orders WHERE user_id = @userid ORDER BY uploaded_at DESC",
+		"SELECT * FROM orders WHERE user_id = @user_id ORDER BY uploaded_at DESC",
 		pgx.NamedArgs{
-			"userid": userID,
+			"user_id": userID,
+		},
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	var userOrders []orders.Order
+	for rows.Next() {
+		dbOrder := order{}
+		err := rows.Scan(&dbOrder.number, &dbOrder.userID, &dbOrder.status, &dbOrder.accrual, &dbOrder.uploadedAt)
+		if err != nil {
+			return nil, err
+		}
+
+		userOrder := orders.Order{
+			Number:     dbOrder.number,
+			UserID:     dbOrder.userID,
+			Status:     dbOrder.status,
+			UploadedAt: dbOrder.uploadedAt,
+		}
+
+		if dbOrder.accrual.Valid {
+			userOrder.Accrual = &dbOrder.accrual.Decimal
+		}
+
+		userOrders = append(userOrders, userOrder)
+	}
+
+	return userOrders, nil
+}
+
+func (s *Storage) UpdateOrderStatus(ctx context.Context, orderNumber string, status string) error {
+	_, err := s.dbpool.Exec(
+		ctx,
+		"UPDATE orders SET status = @status WHERE number = @number",
+		pgx.NamedArgs{
+			"number": orderNumber,
+			"status": status,
+		},
+	)
+
+	return err
+}
+
+func (s *Storage) UpdateOrderAccrual(ctx context.Context, orderNumber string, userID string, accrual decimal.Decimal) error {
+	transaction, err := s.dbpool.BeginTx(ctx, pgx.TxOptions{})
+	if err != nil {
+		return err
+	}
+
+	defer transaction.Rollback(ctx)
+
+	_, err = transaction.Exec(
+		ctx,
+		"UPDATE orders SET accrual = @accrual, status = @status WHERE number = @number",
+		pgx.NamedArgs{
+			"number":  orderNumber,
+			"accrual": accrual,
+			"status":  "PROCESSED",
+		},
+	)
+
+	if err != nil {
+		return err
+	}
+
+	_, err = transaction.Exec(
+		ctx,
+		"UPDATE users SET current = users.current + @accrual WHERE id = @user_id",
+		pgx.NamedArgs{
+			"user_id": userID,
+			"accrual": accrual,
+		},
+	)
+
+	if err != nil {
+		return err
+	}
+
+	return transaction.Commit(ctx)
+}
+
+func (s *Storage) GetOrdersPage(ctx context.Context, limit int64, offset int64) ([]orders.Order, error) {
+	rows, err := s.dbpool.Query(
+		ctx,
+		"SELECT * FROM orders ORDER BY uploaded_at LIMIT @max OFFSET @begin",
+		pgx.NamedArgs{
+			"max":   limit,
+			"begin": offset,
 		},
 	)
 	if err != nil {

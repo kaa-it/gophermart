@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+
 	"github.com/kaa-it/gophermart/pkg/auth"
 	"golang.org/x/crypto/bcrypt"
 )

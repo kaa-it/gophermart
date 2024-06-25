@@ -4,10 +4,11 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"net/http"
+
 	"github.com/kaa-it/gophermart/internal/gophermart/auth"
 	"github.com/kaa-it/gophermart/internal/gophermart/http/rest"
 	authUtils "github.com/kaa-it/gophermart/pkg/auth"
-	"net/http"
 )
 
 type CreateRequest struct {

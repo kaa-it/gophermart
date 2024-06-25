@@ -3,6 +3,7 @@ package withdrawals
 import (
 	"context"
 	"errors"
+
 	"github.com/EClaesson/go-luhn"
 	"github.com/shopspring/decimal"
 )

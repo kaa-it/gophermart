@@ -3,12 +3,13 @@ package postgres
 import (
 	"context"
 	"errors"
+	"time"
+
 	"github.com/jackc/pgerrcode"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/kaa-it/gophermart/internal/gophermart/auth"
 	"github.com/shopspring/decimal"
-	"time"
 )
 
 const (
