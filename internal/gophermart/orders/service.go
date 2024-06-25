@@ -15,10 +15,12 @@ var (
 
 type Service interface {
 	UploadOrder(ctx context.Context, orderNumber string, userID int64) error
+	GetOrders(ctx context.Context, userID int64) ([]Order, error)
 }
 
 type Repository interface {
 	UploadOrder(ctx context.Context, orderNumber string, userID int64) error
+	GetOrders(ctx context.Context, userID int64) ([]Order, error)
 }
 
 type service struct {
@@ -36,6 +38,10 @@ func (s *service) UploadOrder(ctx context.Context, orderNumber string, userID in
 	}
 
 	return s.r.UploadOrder(ctx, orderNumber, userID)
+}
+
+func (s *service) GetOrders(ctx context.Context, userID int64) ([]Order, error) {
+	return s.r.GetOrders(ctx, userID)
 }
 
 func (s *service) validateOrderNumber(number string) error {

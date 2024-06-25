@@ -31,6 +31,7 @@ func (h *Handler) Route() *chi.Mux {
 	mux.Post("/token", h.l.RequestLogger(h.token))
 
 	mux.Post("/orders", h.l.RequestLogger(authUtils.GetHandlerWithJwt(h.uploadOrder)))
+	mux.Get("/orders", h.l.RequestLogger(authUtils.GetHandlerWithJwt(h.getOrders)))
 
 	return mux
 }

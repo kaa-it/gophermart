@@ -1,6 +1,7 @@
 package user
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/kaa-it/gophermart/internal/gophermart/http/rest"
@@ -51,4 +52,35 @@ func (h *Handler) uploadOrder(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusAccepted)
+}
+
+func (h *Handler) getOrders(w http.ResponseWriter, r *http.Request) {
+	userID := auth.GetUserIDByToken(r)
+
+	if userID == nil {
+		h.l.Error("failed to get user id from token")
+		rest.DisplayAppError(w, http.StatusUnauthorized, "unauthorized")
+		return
+	}
+
+	ctx := r.Context()
+
+	userOrders, err := h.o.GetOrders(ctx, *userID)
+	if err != nil {
+		h.l.Error(fmt.Sprintf("failed to get orders for user: %v", err))
+		rest.DisplayAppError(w, http.StatusInternalServerError, "failed to get orders")
+		return
+	}
+
+	if len(userOrders) == 0 {
+		w.WriteHeader(http.StatusNoContent)
+	} else {
+		w.WriteHeader(http.StatusOK)
+	}
+
+	enc := json.NewEncoder(w)
+	if err := enc.Encode(userOrders); err != nil {
+		h.l.Error(fmt.Sprintf("failed encoding orders: %v", err))
+		return
+	}
 }

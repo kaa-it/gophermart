@@ -84,3 +84,40 @@ func (s *Storage) GetOrderByNumber(ctx context.Context, orderNumber string) (*or
 
 	return o, nil
 }
+
+func (s *Storage) GetOrders(ctx context.Context, userID string) ([]orders.Order, error) {
+	rows, err := s.dbpool.Query(
+		ctx,
+		"SELECT * FROM orders WHERE user_id = @userid ORDER BY uploaded_at DESC",
+		pgx.NamedArgs{
+			"userid": userID,
+		},
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	var userOrders []orders.Order
+	for rows.Next() {
+		dbOrder := order{}
+		err := rows.Scan(&dbOrder.number, &dbOrder.userID, &dbOrder.status, &dbOrder.accrual, &dbOrder.uploadedAt)
+		if err != nil {
+			return nil, err
+		}
+
+		userOrder := orders.Order{
+			Number:     dbOrder.number,
+			UserID:     dbOrder.userID,
+			Status:     dbOrder.status,
+			UploadedAt: dbOrder.uploadedAt,
+		}
+
+		if dbOrder.accrual.Valid {
+			userOrder.Accrual = &dbOrder.accrual.Decimal
+		}
+
+		userOrders = append(userOrders, userOrder)
+	}
+
+	return userOrders, nil
+}
