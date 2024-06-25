@@ -33,5 +33,7 @@ func (h *Handler) Route() *chi.Mux {
 	mux.Post("/orders", h.l.RequestLogger(authUtils.GetHandlerWithJwt(h.uploadOrder)))
 	mux.Get("/orders", h.l.RequestLogger(authUtils.GetHandlerWithJwt(h.getOrders)))
 
+	mux.Get("/balance", h.l.RequestLogger(authUtils.GetHandlerWithJwt(h.getBalance)))
+
 	return mux
 }

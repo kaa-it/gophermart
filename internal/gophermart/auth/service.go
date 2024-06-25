@@ -19,6 +19,7 @@ type Service interface {
 	CreateUser(ctx context.Context, user User) (*Credentials, error)
 	Login(ctx context.Context, user User) (*Credentials, error)
 	Token(ctx context.Context, refreshToken string) (*Credentials, error)
+	GetUserByID(ctx context.Context, userID int64) (*User, error)
 }
 
 type Repository interface {
@@ -28,6 +29,7 @@ type Repository interface {
 	RemoveExpiredSessions(ctx context.Context) error
 	GetUserIDBySessionToken(ctx context.Context, refreshToken string) (int64, error)
 	UpdateSession(ctx context.Context, refreshToken, newRefreshToken string) error
+	GetUserByID(ctx context.Context, userID int64) (*User, error)
 }
 
 type service struct {
@@ -119,6 +121,10 @@ func (s *service) Token(ctx context.Context, refreshToken string) (*Credentials,
 	accessToken := auth.CreateAccessToken(userID)
 
 	return &Credentials{accessToken, newRefreshToken}, nil
+}
+
+func (s *service) GetUserByID(ctx context.Context, userID int64) (*User, error) {
+	return s.r.GetUserByID(ctx, userID)
 }
 
 func (s *service) validateUser(user User) error {

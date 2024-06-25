@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"github.com/kaa-it/gophermart/internal/gophermart/auth"
 	"github.com/kaa-it/gophermart/internal/gophermart/http/rest"
+	authUtils "github.com/kaa-it/gophermart/pkg/auth"
+	"github.com/shopspring/decimal"
 	"net/http"
 )
 
@@ -21,6 +23,11 @@ type LoginRequest struct {
 
 type TokenRequest struct {
 	RefreshToken string
+}
+
+type BalanceResponse struct {
+	Currency  decimal.Decimal `json:"currency"`
+	Withdrawn decimal.Decimal `json:"withdrawn"`
 }
 
 func (h *Handler) register(w http.ResponseWriter, r *http.Request) {
@@ -138,6 +145,36 @@ func (h *Handler) token(w http.ResponseWriter, r *http.Request) {
 
 	enc := json.NewEncoder(w)
 	if err := enc.Encode(credentials); err != nil {
+		h.l.Error(fmt.Sprintf("failed encoding credentials: %v", err))
+		return
+	}
+}
+
+func (h *Handler) getBalance(w http.ResponseWriter, r *http.Request) {
+	userID := authUtils.GetUserIDByToken(r)
+
+	if userID == nil {
+		h.l.Error("failed to get user id from token")
+		rest.DisplayAppError(w, http.StatusUnauthorized, "unauthorized")
+		return
+	}
+
+	ctx := r.Context()
+
+	user, err := h.a.GetUserByID(ctx, *userID)
+	if err != nil {
+		h.l.Error(fmt.Sprintf("failed get user: %v", err))
+		rest.DisplayAppError(w, http.StatusInternalServerError, "failed get user")
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+
+	balance := BalanceResponse{Currency: user.Currency, Withdrawn: user.Withdrawn}
+
+	enc := json.NewEncoder(w)
+	if err := enc.Encode(balance); err != nil {
 		h.l.Error(fmt.Sprintf("failed encoding credentials: %v", err))
 		return
 	}

@@ -160,3 +160,33 @@ func (s *Storage) UpdateSession(ctx context.Context, refreshToken, newRefreshTok
 
 	return err
 }
+
+func (s *Storage) GetUserByID(ctx context.Context, userID int64) (*auth.User, error) {
+	var res user
+
+	err := s.dbpool.QueryRow(
+		ctx,
+		"SELECT * FROM users WHERE id = @id",
+		pgx.NamedArgs{
+			"id": userID,
+		},
+	).Scan(&res.id, &res.login, &res.password, &res.currency, &res.withdrawn)
+
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, auth.ErrUserNotFound
+		}
+
+		return nil, err
+	}
+
+	u := &auth.User{
+		ID:        res.id,
+		Login:     res.login,
+		Password:  res.password,
+		Currency:  res.currency,
+		Withdrawn: res.withdrawn,
+	}
+
+	return u, nil
+}
