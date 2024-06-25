@@ -6,6 +6,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/kaa-it/gophermart/internal/gophermart/auth"
 	"github.com/kaa-it/gophermart/internal/gophermart/http/rest/user"
+	"github.com/kaa-it/gophermart/internal/gophermart/orders"
 	"github.com/kaa-it/gophermart/internal/gophermart/storage/postgres"
 	authUtils "github.com/kaa-it/gophermart/pkg/auth"
 	"github.com/kaa-it/gophermart/pkg/logger"
@@ -54,8 +55,9 @@ func (s *Server) Run() {
 	defer newStorage.Close()
 
 	userService := auth.NewService(newStorage)
+	ordersService := orders.NewService(newStorage)
 
-	userHandler := user.NewHandler(userService, log)
+	userHandler := user.NewHandler(userService, ordersService, log)
 
 	r := chi.NewRouter()
 

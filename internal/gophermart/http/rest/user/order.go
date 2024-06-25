@@ -1,7 +1,10 @@
 package user
 
 import (
+	"errors"
+	"fmt"
 	"github.com/kaa-it/gophermart/internal/gophermart/http/rest"
+	"github.com/kaa-it/gophermart/internal/gophermart/orders"
 	"github.com/kaa-it/gophermart/pkg/auth"
 	"io"
 	"net/http"
@@ -23,7 +26,29 @@ func (h *Handler) uploadOrder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
+	ctx := r.Context()
 
-	w.Write(b)
+	if err := h.o.UploadOrder(ctx, string(b), *userID); err != nil {
+		h.l.Error(fmt.Sprintf("failed to upload order: %v", err))
+
+		if errors.Is(err, orders.ErrAlreadyUploadedBySameUser) {
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+
+		if errors.Is(err, orders.ErrAlreadyUploadedByOtherUser) {
+			rest.DisplayAppError(w, http.StatusConflict, "already uploaded by other user")
+			return
+		}
+
+		if errors.Is(err, orders.ErrInvalidOrderFormat) {
+			rest.DisplayAppError(w, http.StatusUnprocessableEntity, "invalid order format")
+			return
+		}
+
+		rest.DisplayAppError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	w.WriteHeader(http.StatusAccepted)
 }

@@ -3,7 +3,9 @@ package postgres
 import (
 	"context"
 	"errors"
+	"github.com/jackc/pgerrcode"
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/kaa-it/gophermart/internal/gophermart/orders"
 	"github.com/shopspring/decimal"
 	"time"
@@ -11,7 +13,7 @@ import (
 
 type order struct {
 	number     string
-	userID     string
+	userID     int64
 	status     string
 	accrual    decimal.NullDecimal
 	uploadedAt time.Time
@@ -29,7 +31,25 @@ func (s *Storage) UploadOrder(ctx context.Context, orderNumber string, userID in
 		},
 	)
 
-	return err
+	if err == nil {
+		return nil
+	}
+
+	var pgErr *pgconn.PgError
+	if !(errors.As(err, &pgErr) && pgErr.Code == pgerrcode.UniqueViolation) {
+		return err
+	}
+
+	order, err := s.GetOrderByNumber(ctx, orderNumber)
+	if err != nil {
+		return err
+	}
+
+	if order.UserID == userID {
+		return orders.ErrAlreadyUploadedBySameUser
+	}
+
+	return orders.ErrAlreadyUploadedByOtherUser
 }
 
 func (s *Storage) GetOrderByNumber(ctx context.Context, orderNumber string) (*orders.Order, error) {

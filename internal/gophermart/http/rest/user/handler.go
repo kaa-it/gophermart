@@ -3,6 +3,7 @@ package user
 import (
 	"github.com/go-chi/chi/v5"
 	"github.com/kaa-it/gophermart/internal/gophermart/auth"
+	"github.com/kaa-it/gophermart/internal/gophermart/orders"
 	authUtils "github.com/kaa-it/gophermart/pkg/auth"
 	"net/http"
 )
@@ -14,11 +15,12 @@ type Logger interface {
 
 type Handler struct {
 	a auth.Service
+	o orders.Service
 	l Logger
 }
 
-func NewHandler(a auth.Service, l Logger) *Handler {
-	return &Handler{a, l}
+func NewHandler(a auth.Service, o orders.Service, l Logger) *Handler {
+	return &Handler{a, o, l}
 }
 
 func (h *Handler) Route() *chi.Mux {

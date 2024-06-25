@@ -14,10 +14,11 @@ var (
 )
 
 type Service interface {
-	UploadOrder(ctx context.Context, orderNumber string) error
+	UploadOrder(ctx context.Context, orderNumber string, userID int64) error
 }
 
 type Repository interface {
+	UploadOrder(ctx context.Context, orderNumber string, userID int64) error
 }
 
 type service struct {
@@ -28,13 +29,18 @@ func NewService(r Repository) Service {
 	return &service{r}
 }
 
-func (s *service) UploadOrder(ctx context.Context, orderNumber string) error {
-	valid, err := luhn.IsValid(orderNumber)
-	if err != nil {
+func (s *service) UploadOrder(ctx context.Context, orderNumber string, userID int64) error {
+
+	if err := s.validateOrderNumber(orderNumber); err != nil {
 		return err
 	}
 
-	if !valid {
+	return s.r.UploadOrder(ctx, orderNumber, userID)
+}
+
+func (s *service) validateOrderNumber(number string) error {
+	valid, err := luhn.IsValid(number)
+	if err != nil || !valid {
 		return ErrInvalidOrderFormat
 	}
 
