@@ -7,7 +7,6 @@ import (
 	"github.com/kaa-it/gophermart/internal/gophermart/auth"
 	"github.com/kaa-it/gophermart/internal/gophermart/http/rest"
 	authUtils "github.com/kaa-it/gophermart/pkg/auth"
-	"github.com/shopspring/decimal"
 	"net/http"
 )
 
@@ -26,8 +25,8 @@ type TokenRequest struct {
 }
 
 type BalanceResponse struct {
-	Current   decimal.Decimal `json:"current"`
-	Withdrawn decimal.Decimal `json:"withdrawn"`
+	Current   float64 `json:"current"`
+	Withdrawn float64 `json:"withdrawn"`
 }
 
 func (h *Handler) register(w http.ResponseWriter, r *http.Request) {
@@ -169,7 +168,9 @@ func (h *Handler) getBalance(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 
-	balance := BalanceResponse{Current: user.Current, Withdrawn: user.Withdrawn}
+	user.Current.Float64()
+
+	balance := BalanceResponse{Current: user.Current.InexactFloat64(), Withdrawn: user.Withdrawn.InexactFloat64()}
 
 	enc := json.NewEncoder(w)
 	if err := enc.Encode(balance); err != nil {
