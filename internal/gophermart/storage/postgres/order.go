@@ -85,7 +85,7 @@ func (s *Storage) GetOrderByNumber(ctx context.Context, orderNumber string) (*or
 	return o, nil
 }
 
-func (s *Storage) GetOrders(ctx context.Context, userID string) ([]orders.Order, error) {
+func (s *Storage) GetOrders(ctx context.Context, userID int64) ([]orders.Order, error) {
 	rows, err := s.dbpool.Query(
 		ctx,
 		"SELECT * FROM orders WHERE user_id = @userid ORDER BY uploaded_at DESC",
