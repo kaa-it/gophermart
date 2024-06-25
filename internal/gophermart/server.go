@@ -8,6 +8,7 @@ import (
 	"github.com/kaa-it/gophermart/internal/gophermart/http/rest/user"
 	"github.com/kaa-it/gophermart/internal/gophermart/orders"
 	"github.com/kaa-it/gophermart/internal/gophermart/storage/postgres"
+	"github.com/kaa-it/gophermart/internal/gophermart/withdrawals"
 	authUtils "github.com/kaa-it/gophermart/pkg/auth"
 	"github.com/kaa-it/gophermart/pkg/logger"
 	"net/http"
@@ -56,8 +57,9 @@ func (s *Server) Run() {
 
 	userService := auth.NewService(newStorage)
 	ordersService := orders.NewService(newStorage)
+	withdrawalsService := withdrawals.NewService(newStorage)
 
-	userHandler := user.NewHandler(userService, ordersService, log)
+	userHandler := user.NewHandler(userService, ordersService, withdrawalsService, log)
 
 	r := chi.NewRouter()
 

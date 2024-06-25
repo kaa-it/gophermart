@@ -4,6 +4,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/kaa-it/gophermart/internal/gophermart/auth"
 	"github.com/kaa-it/gophermart/internal/gophermart/orders"
+	"github.com/kaa-it/gophermart/internal/gophermart/withdrawals"
 	authUtils "github.com/kaa-it/gophermart/pkg/auth"
 	"net/http"
 )
@@ -14,13 +15,14 @@ type Logger interface {
 }
 
 type Handler struct {
-	a auth.Service
-	o orders.Service
-	l Logger
+	a  auth.Service
+	o  orders.Service
+	wd withdrawals.Service
+	l  Logger
 }
 
-func NewHandler(a auth.Service, o orders.Service, l Logger) *Handler {
-	return &Handler{a, o, l}
+func NewHandler(a auth.Service, o orders.Service, wd withdrawals.Service, l Logger) *Handler {
+	return &Handler{a, o, wd, l}
 }
 
 func (h *Handler) Route() *chi.Mux {
@@ -34,6 +36,9 @@ func (h *Handler) Route() *chi.Mux {
 	mux.Get("/orders", h.l.RequestLogger(authUtils.GetHandlerWithJwt(h.getOrders)))
 
 	mux.Get("/balance", h.l.RequestLogger(authUtils.GetHandlerWithJwt(h.getBalance)))
+
+	mux.Post("/balance/withdraw", h.l.RequestLogger(authUtils.GetHandlerWithJwt(h.withdraw)))
+	mux.Get("/balance/withdrawals", h.l.RequestLogger(authUtils.GetHandlerWithJwt(h.getWithdrawals)))
 
 	return mux
 }

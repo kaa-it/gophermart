@@ -26,7 +26,7 @@ type TokenRequest struct {
 }
 
 type BalanceResponse struct {
-	Currency  decimal.Decimal `json:"currency"`
+	Current   decimal.Decimal `json:"current"`
 	Withdrawn decimal.Decimal `json:"withdrawn"`
 }
 
@@ -125,8 +125,6 @@ func (h *Handler) token(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Printf("req: %v/n", req)
-
 	credentials, err := h.a.Token(r.Context(), req.RefreshToken)
 	if err != nil {
 		h.l.Error(fmt.Sprintf("failed refresh tokens: %v", err))
@@ -171,7 +169,7 @@ func (h *Handler) getBalance(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 
-	balance := BalanceResponse{Currency: user.Currency, Withdrawn: user.Withdrawn}
+	balance := BalanceResponse{Current: user.Current, Withdrawn: user.Withdrawn}
 
 	enc := json.NewEncoder(w)
 	if err := enc.Encode(balance); err != nil {

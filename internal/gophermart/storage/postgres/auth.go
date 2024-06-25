@@ -19,8 +19,12 @@ type user struct {
 	id        int64
 	login     string
 	password  string
-	currency  decimal.Decimal
+	current   decimal.Decimal
 	withdrawn decimal.Decimal
+}
+
+type querier interface {
+	QueryRow(ctx context.Context, sql string, args ...any) pgx.Row
 }
 
 func (s *Storage) CreateUser(ctx context.Context, user auth.User, refreshToken string) (int64, error) {
@@ -81,7 +85,7 @@ func (s *Storage) GetUserByLogin(ctx context.Context, login string) (*auth.User,
 		pgx.NamedArgs{
 			"login": login,
 		},
-	).Scan(&res.id, &res.login, &res.password, &res.currency, &res.withdrawn)
+	).Scan(&res.id, &res.login, &res.password, &res.current, &res.withdrawn)
 
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
@@ -95,7 +99,7 @@ func (s *Storage) GetUserByLogin(ctx context.Context, login string) (*auth.User,
 		ID:        res.id,
 		Login:     res.login,
 		Password:  res.password,
-		Currency:  res.currency,
+		Current:   res.current,
 		Withdrawn: res.withdrawn,
 	}
 
@@ -162,15 +166,19 @@ func (s *Storage) UpdateSession(ctx context.Context, refreshToken, newRefreshTok
 }
 
 func (s *Storage) GetUserByID(ctx context.Context, userID int64) (*auth.User, error) {
+	return s.getUserByID(ctx, s.dbpool, userID)
+}
+
+func (s *Storage) getUserByID(ctx context.Context, rx querier, userID int64) (*auth.User, error) {
 	var res user
 
-	err := s.dbpool.QueryRow(
+	err := rx.QueryRow(
 		ctx,
 		"SELECT * FROM users WHERE id = @id",
 		pgx.NamedArgs{
 			"id": userID,
 		},
-	).Scan(&res.id, &res.login, &res.password, &res.currency, &res.withdrawn)
+	).Scan(&res.id, &res.login, &res.password, &res.current, &res.withdrawn)
 
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
@@ -184,7 +192,7 @@ func (s *Storage) GetUserByID(ctx context.Context, userID int64) (*auth.User, er
 		ID:        res.id,
 		Login:     res.login,
 		Password:  res.password,
-		Currency:  res.currency,
+		Current:   res.current,
 		Withdrawn: res.withdrawn,
 	}
 
