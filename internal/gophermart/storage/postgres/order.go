@@ -24,10 +24,10 @@ func (s *Storage) UploadOrder(ctx context.Context, orderNumber string, userID in
 		ctx,
 		"INSERT INTO orders (number, user_id, status, uploaded_at) VALUES (@number, @user_id, @status, @uploaded_at)",
 		pgx.NamedArgs{
-			"number":  orderNumber,
-			"user_id": userID,
-			"status":  orders.OrderStatusNew,
-			"expired": time.Now(),
+			"number":      orderNumber,
+			"user_id":     userID,
+			"status":      orders.OrderStatusNew,
+			"uploaded_at": time.Now(),
 		},
 	)
 

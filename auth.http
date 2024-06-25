@@ -2,7 +2,7 @@ POST http://localhost:8080/api/user/register
 Content-Type: application/json
 
 {
-  "login": "akruglov",
+  "login": "krgaa",
   "password": "8smile8"
 }
 
@@ -28,5 +28,6 @@ Content-Type: application/json
 ###
 
 POST http://localhost:8080/api/user/orders
+Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjMsImlzcyI6Imh0dHBzOi8vYWtydWdsb3YucnUiLCJhdWQiOlsia3J1Z2xvdiJdLCJleHAiOjE3MTkzMTkwMTR9.VUeCpcf90gSGGZ1uGySSHhDhxhYQiqPlJaJtafPhlkYMeTcI20xhH4FwMZLDVWTBOZ1aESm4RNMOhAH4CIGu6LR0k9RfYtVRvvSEKAdsUfo5qedUAxPeFx8Y70Mz5-kH5XtioKCgyLnyDO2JOUu-PKwAssWzpiR7TWjW32b4rdg
 
-1234556
+208787473
