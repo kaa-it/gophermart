@@ -136,7 +136,7 @@ func (s *Storage) UpdateOrderStatus(ctx context.Context, orderNumber string, sta
 	return err
 }
 
-func (s *Storage) UpdateOrderAccrual(ctx context.Context, orderNumber string, userID string, accrual decimal.Decimal) error {
+func (s *Storage) UpdateOrderAccrual(ctx context.Context, orderNumber string, userID int64, accrual decimal.Decimal) error {
 	transaction, err := s.dbpool.BeginTx(ctx, pgx.TxOptions{})
 	if err != nil {
 		return err
@@ -177,7 +177,7 @@ func (s *Storage) UpdateOrderAccrual(ctx context.Context, orderNumber string, us
 func (s *Storage) GetOrdersPage(ctx context.Context, limit int64, offset int64) ([]orders.Order, error) {
 	rows, err := s.dbpool.Query(
 		ctx,
-		"SELECT * FROM orders ORDER BY uploaded_at LIMIT @max OFFSET @begin",
+		"SELECT * FROM orders WHERE (status != 'INVALID') AND (status != 'PROCESSED') ORDER BY uploaded_at LIMIT @max OFFSET @begin",
 		pgx.NamedArgs{
 			"max":   limit,
 			"begin": offset,
