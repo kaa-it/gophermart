@@ -8,7 +8,7 @@ Content-Type: application/json
 
 ###
 
-POST http://localhost:8080/api/user/login
+POST http://localhost:8081/api/user/login
 Content-Type: application/json
 
 {
@@ -41,3 +41,8 @@ Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlzc
 
 GET http://localhost:8080/api/user/balance
 Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlzcyI6Imh0dHBzOi8vYWtydWdsb3YucnUiLCJhdWQiOlsia3J1Z2xvdiJdLCJleHAiOjE3MTkzMzM2NTR9.PDzN2B-xIq_VaLJhs-oebdfqD1slXcuVvaSe7VfdKPz6pU3l9VEI0YhVjYVFzGyFNail8SrcJ6oju3AymDYLVfgCGpyb8JJnzo-GIUsfgHegeGPwavUQWZ9K-VlobcvcDlNNMB0FaydMYV3SkF00mB7_JSCWiUcQWPmCiSSLKps
+
+###
+
+GET http://localhost:8081/api/user/withdrawals
+Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlzcyI6Imh0dHBzOi8vYWtydWdsb3YucnUiLCJhdWQiOlsia3J1Z2xvdiJdLCJleHAiOjE3MTkzOTcwODF9.UI5wmNwVsPsYlSOB0qOKEqeG3FtTU68f3WmIJZICXKv4sP0MaZnfv-vnmkMiHukF_WlPCT6Ta2ibR1Er2e1sU_SRJ3tBVbZwBMupBdOWPVAHO6Xny_KkY_jaP9phUROQv_2dm-nfSKLuNsGGbr8Fxs3647IAhQLANbsaeT1BM5Q

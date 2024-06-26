@@ -61,6 +61,8 @@ func NewAccrual(log *logger.Logger, storage *postgres.Storage, address string) *
 
 func (a *Accrual) Run() {
 
+	a.log.Info("accrual started")
+
 	ctx, cancel := context.WithCancel(context.Background())
 	a.cancel = cancel
 
@@ -117,6 +119,8 @@ func (a *Accrual) Run() {
 			offset = 0
 		}
 	}
+
+	a.log.Info("accrual stopped")
 }
 
 func (a *Accrual) Shutdown() {

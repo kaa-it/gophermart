@@ -39,7 +39,7 @@ func (h *Handler) Route() *chi.Mux {
 	mux.Get("/balance", h.l.RequestLogger(authUtils.GetHandlerWithJwt(h.getBalance)))
 
 	mux.Post("/balance/withdraw", h.l.RequestLogger(authUtils.GetHandlerWithJwt(h.withdraw)))
-	mux.Get("/balance/withdrawals", h.l.RequestLogger(authUtils.GetHandlerWithJwt(h.getWithdrawals)))
+	mux.Get("/user/withdrawals", h.l.RequestLogger(authUtils.GetHandlerWithJwt(h.getWithdrawals)))
 
 	return mux
 }
