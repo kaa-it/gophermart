@@ -1,0 +1,48 @@
+POST http://localhost:8080/api/user/register
+Content-Type: application/json
+
+{
+  "login": "krgaa",
+  "password": "8smile8"
+}
+
+###
+
+POST http://localhost:8081/api/user/login
+Content-Type: application/json
+
+{
+  "login": "akruglov",
+  "password": "8smile8"
+}
+
+###
+
+POST http://localhost:8080/api/user/token
+Content-Type: application/json
+
+{
+  "refreshToken": "e65399a454ddd345781f2747cabcbea619dfe4e14f35aaf54eedf8f7a516b39791797ace6b4e6007a26c23cf5d0c"
+}
+
+###
+
+POST http://localhost:8080/api/user/orders
+Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlzcyI6Imh0dHBzOi8vYWtydWdsb3YucnUiLCJhdWQiOlsia3J1Z2xvdiJdLCJleHAiOjE3MTkzMzcyMzd9.QUTrcAhgA2nOSsPjXVNVNiKZ-kkahi26nbyJwVNnGemATjjGTSMpSi6NApMqsxGh-czoa7Luexs0HAXfQpYwKzDLhxMc5RX7BYR4GeDWXsJGm7mu5gMgodTbJcdHXojKp4Pfg3lOlcpJr7vdYdaxZZfNwbQBPAQq5-NnoZIwBCk
+
+208787473
+
+###
+
+GET http://localhost:8080/api/user/orders
+Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlzcyI6Imh0dHBzOi8vYWtydWdsb3YucnUiLCJhdWQiOlsia3J1Z2xvdiJdLCJleHAiOjE3MTkzMzM2NTR9.PDzN2B-xIq_VaLJhs-oebdfqD1slXcuVvaSe7VfdKPz6pU3l9VEI0YhVjYVFzGyFNail8SrcJ6oju3AymDYLVfgCGpyb8JJnzo-GIUsfgHegeGPwavUQWZ9K-VlobcvcDlNNMB0FaydMYV3SkF00mB7_JSCWiUcQWPmCiSSLKps
+
+###
+
+GET http://localhost:8080/api/user/balance
+Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlzcyI6Imh0dHBzOi8vYWtydWdsb3YucnUiLCJhdWQiOlsia3J1Z2xvdiJdLCJleHAiOjE3MTkzMzM2NTR9.PDzN2B-xIq_VaLJhs-oebdfqD1slXcuVvaSe7VfdKPz6pU3l9VEI0YhVjYVFzGyFNail8SrcJ6oju3AymDYLVfgCGpyb8JJnzo-GIUsfgHegeGPwavUQWZ9K-VlobcvcDlNNMB0FaydMYV3SkF00mB7_JSCWiUcQWPmCiSSLKps
+
+###
+
+GET http://localhost:8081/api/user/withdrawals
+Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlzcyI6Imh0dHBzOi8vYWtydWdsb3YucnUiLCJhdWQiOlsia3J1Z2xvdiJdLCJleHAiOjE3MTkzOTcwODF9.UI5wmNwVsPsYlSOB0qOKEqeG3FtTU68f3WmIJZICXKv4sP0MaZnfv-vnmkMiHukF_WlPCT6Ta2ibR1Er2e1sU_SRJ3tBVbZwBMupBdOWPVAHO6Xny_KkY_jaP9phUROQv_2dm-nfSKLuNsGGbr8Fxs3647IAhQLANbsaeT1BM5Q
